@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chore Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .container { display: flex; gap: 40px; }
+    .inputs { flex: 1; }
+    .chart-container { flex: 2; }
+    label { display: block; margin-top: 10px; }
+    input { width: 60px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Bote Chore Tracker</h2>
+  <div class="container">
+    <div class="inputs">
+      <h3>Update Chores</h3>
+      <div id="input-fields"></div>
+      <button onclick="updateChart()">Update Chart</button>
+    </div>
+    <div class="chart-container">
+      <canvas id="choresChart" width="500" height="300"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const children = ["evie", "alice", "rosie", "ronnie"];
+    const choresDone = { evie: 0, alice: 0, rosie: 0, ronnie: 0 };
+    const expectedChores = { evie: 5, alice: 5, rosie: 5, ronnie: 5 };
+
+    const inputFields = document.getElementById("input-fields");
+
+    children.forEach(name => {
+      inputFields.innerHTML += `
+        <label>${name}:</label>
+        <input type="number" id="${name}-input" placeholder="Done" />
+      `;
+    });
+
+    const ctx = document.getElementById('choresChart').getContext('2d');
+    const choresChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: children.map(name => name.toUpperCase()),
+        datasets: [
+          {
+            label: 'Chores Done',
+            data: children.map(c => choresDone[c]),
+            backgroundColor: 'skyblue'
+          },
+          {
+            label: 'Expected Chores',
+            data: children.map(c => expectedChores[c]),
+            backgroundColor: 'lightgreen'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Number of Chores' }
+          }
+        }
+      }
+    });
+
+    function updateChart() {
+      children.forEach(name => {
+        const val = parseInt(document.getElementById(`${name}-input`).value);
+        if (!isNaN(val)) choresDone[name] += val;
+        document.getElementById(`${name}-input`).value = '';
+      });
+
+      choresChart.data.datasets[0].data = children.map(c => choresDone[c]);
+      choresChart.update();
+    }
+  </script>
+</body>
+</html>
+
